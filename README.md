@@ -4,21 +4,23 @@ Alpha.
 
 For Gnu/Linux Only.
 
-The idea is each character you want the program to understand is parsed as some decimal number you give to it.
-But the decimal numbers get randomly reassigned for each character as you go.
+The program does two things. 1) protect your input of your password string during opreation 2) apply your password to a file and overwrite the file.
+
+The idea is for each character you want the program to understand to be parsed as some decimal number you give to it.
+But the decimal numbers will be randomly reassigned for each character as you go on.
 
 In total, the lowercase english alphabet, characters '0' through '9', and the space key get reassigned different numerical values after each time you pick a key.
 
+Randomness is seeded using your system's random device. If by chance your system doesn't provide a random device that collects nondeterministic value from the OS and or its use, this program becomes basically useless.
 
-Randomness is seeded using your system's random device.
+The reassignments are presented to you as "letter here=decimal value here". Input the decimal value to pick the letter (or any other desired symbol).
 
-The reassignments are presented as "letter here=decimal value here".
-The table gets cleared every time after you input a value.
+The table gets cleared every time after you input a value. You won't get to see what parts you've already typed out of your password.
 
-It is of note each character of a password is encrypted after you provide it as well and then remains protected using mprotect until your whole password entry is finished.
+It is of note each character of your password is encrypted after you provide it, then it remains protected using "mprotect" until your whole password entry is finished and its time to save.
 
-A file you selected (intended to be a key file you've already obfuscated) should load at the beginning and at the end have applied an XOR operation where your password gets cycled through repeatedly. Finally the file is saved over the one the original.
+A file you selected (intended to be a key file which you've already obfuscated) should load at the beginning and at the last step this file will have applied to it an XOR operation where your password gets cycled through repeatedly and used. Finally the file is saved over the one which was the original.
 
-At this time the options obfuscate and deobfuscate are really the same effect. But the program should be thought as an automated deobfuscater.
+At this time the options obfuscate and deobfuscate have the same effect. But the program should be thought as a "secure" way to deobfuscate.
 
-note: do not load a sensitive file. instead of using the program to redo or make an obfuscation, replace the sensitive key file with a backup of the protected (already obfsucated) one.
+note: do not load a NON-obfuscated file. Instead of using this program to redo or make the initial obfuscation, look to externally make the obfuscation yourself or replace the deobfuscated file with a backup that is already obfuscated.
