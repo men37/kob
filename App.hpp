@@ -41,7 +41,7 @@ public:
     void setEnvironVars(const std::vector<std::string>& vars);
     std::string getEnvironVar(const std::string strText);
 private:
-    void getPassFromUser(CSecurePassString& pass);
+    bool getPassFromUser(CSecurePassString& pass);
     bool getConfirmation();
     void clearScreen();
     void clearMembers();

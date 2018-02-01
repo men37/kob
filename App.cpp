@@ -110,7 +110,15 @@ void CApp::run()
     if (m_strInput[0] == 'o')
     {
         CSecurePassString pass;
-        getPassFromUser(pass);
+        const bool bInput = getPassFromUser(pass);
+        if (bInput)
+        {
+            clearMembers();
+            clearScreen();
+            printText("user did input incorrectly.");
+            return;
+        }
+
         const bool bConfirmed = getConfirmation();
         if (!bConfirmed)
         {
@@ -134,7 +142,15 @@ void CApp::run()
     else if (m_strInput[0] == 'd')
     {
         CSecurePassString pass;
-        getPassFromUser(pass);
+        const bool bInput = getPassFromUser(pass);
+        if (bInput)
+        {
+            clearMembers();
+            clearScreen();
+            printText("user did input incorrectly.");
+            return;
+        }
+
         const bool bConfirmed = getConfirmation();
         if (!bConfirmed)
         {
@@ -194,7 +210,7 @@ std::string CApp::getEnvironVar(const std::string strText)
 }
 
 
-void CApp::getPassFromUser(CSecurePassString& pass)
+bool CApp::getPassFromUser(CSecurePassString& pass)
 {
 
     printText("Input letters and/or numbers, input period (punctuation) symbol when finished");
@@ -225,7 +241,7 @@ void CApp::getPassFromUser(CSecurePassString& pass)
         if (!getInputSafe(strInput))
         {
             clearMembers();
-            exit(0);
+            return true;
         }
 
         got = strInput;
@@ -233,6 +249,7 @@ void CApp::getPassFromUser(CSecurePassString& pass)
         if (got[0] == '.')
         {
             lan.deInit();
+            overwriteStr(strTable);
             strTable.clear();
             got.clear();
             strInput.clear();
@@ -243,16 +260,29 @@ void CApp::getPassFromUser(CSecurePassString& pass)
         if (!allNumeric(got))
         {
             lan.deInit();
+            overwriteStr(strTable);
             strTable.clear();
             got.clear();
             strInput.clear();
             printText("Input error. Use numeric values only!");
             clearScreen();
-            continue;
+            return true;
         }
 
         const std::string strSrcTable = "0123456789abcdefghijklmnopqrstuvwxyz ";
         uint8_t nTrueValue = lan.indexFor(boost::lexical_cast<uint32_t>(got));
+        if (nTrueValue == 255)
+        {
+            lan.deInit();
+            overwriteStr(strTable);
+            strTable.clear();
+            got.clear();
+            strInput.clear();
+            printText("Input error. Use numeric values only!");
+            clearScreen();
+            return true;
+        }
+
         pass.putAtPosAndEncrypt(strSrcTable[nTrueValue], nPassIndex);
         pass.Size += 1;
         ++nPassIndex;
@@ -268,9 +298,13 @@ void CApp::getPassFromUser(CSecurePassString& pass)
 
     }
 
+    // Clear first
+    overwriteStr(strInput, 1);
+
     clearScreen();
     //printText(strPass);
 
+    return false;
 }
 
 bool CApp::getConfirmation()
@@ -323,6 +357,8 @@ void CApp::clearScreen()
     strExtras.clear();
 
     printf("\033[2J");
+
+    std::system("clear");
 }
 
 void CApp::clearMembers()

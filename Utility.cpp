@@ -194,8 +194,7 @@ bool obfuscateAndSaveKF(SKeyFile& file, CSecurePassString& pass, const std::stri
 {
     SKeyFile fileB;
     fileB = file;
-    fileB.xorBuffer(pass);
-    const bool bResult = fileB.save(strFilePath);
+    const bool bResult = fileB.save(strFilePath, pass);
     file.clearBytes();
     fileB.clearBytes();
     return bResult;
@@ -205,8 +204,7 @@ bool deobfuscateAndSaveKF(SKeyFile& file, CSecurePassString& pass, const std::st
 {
     SKeyFile fileB;
     fileB = file;
-    fileB.xorBuffer(pass);
-    const bool bResult = fileB.save(strFilePath);
+    const bool bResult = fileB.save(strFilePath, pass);
     file.clearBytes();
     fileB.clearBytes();
     return bResult;

@@ -59,14 +59,24 @@ void SKeyFile::clearBytes()
     mprotect(Bytes, PAGE_SIZE, PROT_NONE);
 }
 
-
-void SKeyFile::xorBuffer(CSecurePassString& pass)
+bool SKeyFile::save(const std::string& strFilePath, CSecurePassString& pass)
 {
+    std::ofstream ofs(strFilePath, std::ofstream::binary);
+    if (!ofs)
+    {
+        return false;
+    }
+
+
     uint32_t nPassIndex = 0;
+    uint8_t nVal = 255;
     mprotect(Bytes, PAGE_SIZE, PROT_WRITE);
     for (int32_t iii = 0; iii < Size; ++iii)
     {
-        Bytes[iii] = Bytes[iii] ^ pass.getDecryptedAtPos(nPassIndex);
+        nVal = Bytes[iii] ^ pass.getDecryptedAtPos(nPassIndex);
+        ofs.write((char*)&nVal, 1);
+        nVal = 255;
+
         ++nPassIndex;
         if (nPassIndex >= pass.Size)
         {
@@ -84,19 +94,11 @@ void SKeyFile::xorBuffer(CSecurePassString& pass)
             nPassIndex = 0;
         }
     }
-    mprotect(Bytes, PAGE_SIZE, PROT_NONE);
-}
 
-bool SKeyFile::save(const std::string& strFilePath)
-{
-    std::ofstream ofs(strFilePath, std::ofstream::binary);
-    if (!ofs)
-    {
-        return false;
-    }
-    mprotect(Bytes, PAGE_SIZE, PROT_READ);
-    ofs.write((char*)Bytes, Size);
+    guaranteed_memset(Bytes, 0, g_nMaxKeyFileSize);
+
     mprotect(Bytes, PAGE_SIZE, PROT_NONE);
+
     ofs.close();
 
     return true;

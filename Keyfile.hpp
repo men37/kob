@@ -40,9 +40,8 @@ struct SKeyFile
     int32_t Size;
 
     void clearBytes();
-    void xorBuffer(CSecurePassString& pass);
 
-    bool save(const std::string& strFilePath);
+    bool save(const std::string& strFilePath, CSecurePassString& pass);
     bool load(const std::string& strFilePath);
 };
 
