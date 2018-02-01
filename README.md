@@ -3,9 +3,9 @@
 For Gnu/Linux Only.
 
 Each character you want the program to understand is parsed as some decimal number you give to it.
-But the decimal numbers chosen for each character is randomized after each key press.
+But the decimal numbers chosen for each character is randomized after each key is picked.
 
-In total, the lowercase english alphabet, characters '0' through '9', and the space key get reassigned different numerical values after each time you press key.
+In total, the lowercase english alphabet, characters '0' through '9', and the space key get reassigned different numerical values after each time you pick a key.
 Again this is done randomly.
 
 Randomness is seeded using your system's random device.
