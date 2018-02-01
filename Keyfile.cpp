@@ -33,33 +33,40 @@ using namespace std;
 
 #include "Utility.hpp"
 
-SKeyFile::SKeyFile() : Bytes(nullptr), Size(0)
+CKeyFile::CKeyFile() : Bytes(nullptr), Size(0)
 {
-  void* mapped = mmap(nullptr, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-  if (mapped == (void*)-1)
-  {
-      cout << std::strerror(errno) << endl;
-      cout << "mmap fail." << endl;
-  }
+    void* mapped = mmap(nullptr, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+    if (mapped == (void*)-1)
+    {
+        cout << std::strerror(errno) << endl;
+        cout << "mmap fail." << endl;
+    }
 
-  Bytes = (uint8_t*)mapped;
-  clearBytes();
+    Bytes = (uint8_t*)mapped;
+    clearBytes();
 }
 
-SKeyFile::~SKeyFile()
+CKeyFile::~CKeyFile()
 {
     clearBytes();
     Size = 0;
 }
 
-void SKeyFile::clearBytes()
+bool CKeyFile::clearBytes()
 {
+    if (Bytes == nullptr)
+    {
+        return false;
+    }
+
     mprotect(Bytes, PAGE_SIZE, PROT_WRITE);
-    guaranteed_memset(Bytes, 0, g_nMaxKeyFileSize);
+    guaranteed_memset(Bytes, 0, PAGE_SIZE);
     mprotect(Bytes, PAGE_SIZE, PROT_NONE);
+
+    return true;
 }
 
-bool SKeyFile::save(const std::string& strFilePath, CSecurePassString& pass)
+bool CKeyFile::save(const std::string& strFilePath, CSecurePassString& pass)
 {
     std::ofstream ofs(strFilePath, std::ofstream::binary);
     if (!ofs)
@@ -95,7 +102,7 @@ bool SKeyFile::save(const std::string& strFilePath, CSecurePassString& pass)
         }
     }
 
-    guaranteed_memset(Bytes, 0, g_nMaxKeyFileSize);
+    guaranteed_memset(Bytes, 0, PAGE_SIZE);
 
     mprotect(Bytes, PAGE_SIZE, PROT_NONE);
 
@@ -104,7 +111,7 @@ bool SKeyFile::save(const std::string& strFilePath, CSecurePassString& pass)
     return true;
 }
 
-bool SKeyFile::load(const std::string& strFilePath)
+bool CKeyFile::load(const std::string& strFilePath)
 {
     std::ifstream ifs(strFilePath, std::ifstream::binary);
     if (!ifs)
@@ -115,9 +122,11 @@ bool SKeyFile::load(const std::string& strFilePath)
     ifs.seekg(0, ios::end);
     Size = ifs.tellg();
 
-    if (Size > g_nMaxKeyFileSize)
+    if (Size > MaxKeyFileSize)
     {
-        printText("File exceeds: " + boost::lexical_cast<std::string>(g_nMaxKeyFileSize));
+        const int32_t nMaxKeyFileSize = MaxKeyFileSize;
+        printText("File exceeds: " + boost::lexical_cast<std::string>(nMaxKeyFileSize));
+        ifs.close();
         return false;
     }
 

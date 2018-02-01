@@ -51,6 +51,7 @@ CApp::~CApp()
 
 void CApp::run()
 {
+    printText("Be advised the file size limit is 2048 bytes.");
 
     printText("pick an option by letter: ");
     printText("(s)et file name, (c)ancel");
@@ -111,7 +112,7 @@ void CApp::run()
     {
         CSecurePassString pass;
         const bool bInput = getPassFromUser(pass);
-        if (bInput)
+        if (!bInput)
         {
             clearMembers();
             clearScreen();
@@ -143,7 +144,7 @@ void CApp::run()
     {
         CSecurePassString pass;
         const bool bInput = getPassFromUser(pass);
-        if (bInput)
+        if (!bInput)
         {
             clearMembers();
             clearScreen();
@@ -225,7 +226,10 @@ bool CApp::getPassFromUser(CSecurePassString& pass)
         got.clear();
 
         CRandomCipherLAN lan;
-        lan.init();
+        if (!lan.init())
+        {
+            return false;
+        }
 
         std::string strTable;
 
@@ -241,7 +245,7 @@ bool CApp::getPassFromUser(CSecurePassString& pass)
         if (!getInputSafe(strInput))
         {
             clearMembers();
-            return true;
+            return false;
         }
 
         got = strInput;
@@ -266,7 +270,7 @@ bool CApp::getPassFromUser(CSecurePassString& pass)
             strInput.clear();
             printText("Input error. Use numeric values only!");
             clearScreen();
-            return true;
+            return false;
         }
 
         const std::string strSrcTable = "0123456789abcdefghijklmnopqrstuvwxyz ";
@@ -278,9 +282,9 @@ bool CApp::getPassFromUser(CSecurePassString& pass)
             strTable.clear();
             got.clear();
             strInput.clear();
-            printText("Input error. Use numeric values only!");
+            printText("Input error. Chosen numeric value was invaild!");
             clearScreen();
-            return true;
+            return false;
         }
 
         pass.putAtPosAndEncrypt(strSrcTable[nTrueValue], nPassIndex);
@@ -304,7 +308,7 @@ bool CApp::getPassFromUser(CSecurePassString& pass)
     clearScreen();
     //printText(strPass);
 
-    return false;
+    return true;
 }
 
 bool CApp::getConfirmation()
@@ -373,10 +377,10 @@ void CApp::clearMembers()
 void CApp::clearEnvVars()
 {
     std::vector<std::string> toKeep ;
-    //toKeep.push_back(std::string("SHELL"));
+    toKeep.push_back(std::string("SHELL"));
     toKeep.push_back(std::string("TERM"));
     toKeep.push_back(std::string("PATH"));
-    //toKeep.push_back(std::string("LD_LIBRARY_PATH"));
+    toKeep.push_back(std::string("LD_LIBRARY_PATH"));
 
     for (uint32_t iii = 0; iii < m_envVars.size(); ++iii)
     {

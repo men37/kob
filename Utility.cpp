@@ -1,4 +1,3 @@
-
 /*
 
     Pseudonym.XgQpAOMjEs claims all copyright interest in the program "kob" (which dynamically masks inputted passwords through reassignment of ascii key codes)
@@ -48,22 +47,22 @@ bool getInputSafe(std::string& strInput)
 
     if (strInput.size() >= 250)
     {
-      overwriteStr(strInput);
+        overwriteStr(strInput);
 
-      printText("Hazardous Input Text Detected.");
-      strInput.clear();
+        printText("Hazardous Input Text Detected.");
+        strInput.clear();
 
-      return false;
+        return false;
     }
 
     if (badInput(strInput))
     {
-      overwriteStr(strInput);
+        overwriteStr(strInput);
 
-      printText("Hazardous Input Text Detected.");
-      strInput.clear();
+        printText("Hazardous Input Text Detected.");
+        strInput.clear();
 
-      return false;
+        return false;
     }
 
     return true;
@@ -71,89 +70,89 @@ bool getInputSafe(std::string& strInput)
 
 bool badInput(std::string& strInput)
 {
-  bool bVal = false;
+    bool bVal = false;
 
-  std::size_t nFound = std::string::npos;
+    std::size_t nFound = std::string::npos;
 
-  nFound = strInput.find_first_of("/<>%()&+\'\"\\");
+    nFound = strInput.find_first_of("/<>%()&+\'\"\\");
 
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find_first_of("!{}[]?*;^~");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find("../");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find("..\\");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find("/.");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find("\\.");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find("\r");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find("\n");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find("\f");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  nFound = strInput.find("\v");
-
-  if (nFound != std::string::npos)
-  {
-    return true;
-  }
-
-  for (uint32_t iii = 0; iii < strInput.size(); ++iii)
-  {
-    if (strInput[iii] == '\0')
+    if (nFound != std::string::npos)
     {
-      return true;
+        return true;
     }
-  }
 
-  return bVal;
+    nFound = strInput.find_first_of("!{}[]?*;^~");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    nFound = strInput.find("../");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    nFound = strInput.find("..\\");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    nFound = strInput.find("/.");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    nFound = strInput.find("\\.");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    nFound = strInput.find("\r");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    nFound = strInput.find("\n");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    nFound = strInput.find("\f");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    nFound = strInput.find("\v");
+
+    if (nFound != std::string::npos)
+    {
+        return true;
+    }
+
+    for (uint32_t iii = 0; iii < strInput.size(); ++iii)
+    {
+        if (strInput[iii] == '\0')
+        {
+            return true;
+        }
+    }
+
+    return bVal;
 }
 
 bool allNumeric(const std::string& strText)
@@ -185,27 +184,21 @@ void overwriteStr(std::string& strText, const uint8_t nVal)
     }
 }
 
-bool loadKeyFile(SKeyFile& file, const std::string& strFilePath)
+bool loadKeyFile(CKeyFile& file, const std::string& strFilePath)
 {
     return file.load(strFilePath);
 }
 
-bool obfuscateAndSaveKF(SKeyFile& file, CSecurePassString& pass, const std::string& strFilePath)
+bool obfuscateAndSaveKF(CKeyFile& file, CSecurePassString& pass, const std::string& strFilePath)
 {
-    SKeyFile fileB;
-    fileB = file;
-    const bool bResult = fileB.save(strFilePath, pass);
+    const bool bResult = file.save(strFilePath, pass);
     file.clearBytes();
-    fileB.clearBytes();
     return bResult;
 }
 
-bool deobfuscateAndSaveKF(SKeyFile& file, CSecurePassString& pass, const std::string& strFilePath)
+bool deobfuscateAndSaveKF(CKeyFile& file, CSecurePassString& pass, const std::string& strFilePath)
 {
-    SKeyFile fileB;
-    fileB = file;
-    const bool bResult = fileB.save(strFilePath, pass);
+    const bool bResult = file.save(strFilePath, pass);
     file.clearBytes();
-    fileB.clearBytes();
     return bResult;
 }

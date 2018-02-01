@@ -49,10 +49,10 @@ int main()
 void configure(CApp& app)
 {
 
-	std::vector<std::string> toPreserve;
+    std::vector<std::string> toPreserve;
 
-	uint32_t nIndex = 0;
-	while (environ[nIndex] != nullptr)
+    uint32_t nIndex = 0;
+    while (environ[nIndex] != nullptr)
     {
         toPreserve.push_back(std::string(environ[nIndex]));
         ++nIndex;
@@ -60,7 +60,7 @@ void configure(CApp& app)
 
     app.setEnvironVars(toPreserve);
 
-	// setting RLIMIT_CORE so core files don't get dumped.
+    // setting RLIMIT_CORE so core files don't get dumped.
     struct rlimit rl;
     getrlimit (RLIMIT_CORE, &rl);
     rl.rlim_cur = 0;

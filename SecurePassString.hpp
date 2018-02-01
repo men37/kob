@@ -30,22 +30,25 @@
 
 class CSecurePassString
 {
-  public:
-  CSecurePassString();
-  ~CSecurePassString();
+public:
+    CSecurePassString();
+    ~CSecurePassString();
 
-  uint32_t Size;
+    uint32_t Size;
 
-  void init();
-  void deInit();
+    bool init();
+    bool deInit();
 
-  void putAtPosAndEncrypt(const uint8_t nVal, const uint32_t nIndex);
-  uint8_t getDecryptedAtPos(const uint32_t nIndex);
-  void overwritePos(const uint32_t nIndex);
-  private:
+    void putAtPosAndEncrypt(const uint8_t nVal, const uint32_t nIndex);
+    uint8_t getDecryptedAtPos(const uint32_t nIndex);
+    void overwritePos(const uint32_t nIndex);
 
-  uint8_t* m_buffer;
-  uint8_t* m_undos;
+private:
+    CSecurePassString(const CSecurePassString&);
+    CSecurePassString operator=(const CSecurePassString&);
+
+    uint8_t* m_buffer;
+    uint8_t* m_undos;
 };
 
 #endif

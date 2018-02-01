@@ -59,11 +59,11 @@ void printText(const std::string& strText, bool bEndLine=true);
 
 void overwriteStr(std::string& strText, const uint8_t nVal=1);
 
-bool loadKeyFile(SKeyFile& file, const std::string& strFilePath);
+bool loadKeyFile(CKeyFile& file, const std::string& strFilePath);
 
-bool obfuscateAndSaveKF(SKeyFile& file, CSecurePassString& pass, const std::string& strFilePath);
+bool obfuscateAndSaveKF(CKeyFile& file, CSecurePassString& pass, const std::string& strFilePath);
 
-bool deobfuscateAndSaveKF(SKeyFile& file, CSecurePassString& pass, const std::string& strFilePath);
+bool deobfuscateAndSaveKF(CKeyFile& file, CSecurePassString& pass, const std::string& strFilePath);
 
 
 

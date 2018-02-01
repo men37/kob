@@ -39,13 +39,15 @@ CSecurePassString::~CSecurePassString()
 }
 
 
-void CSecurePassString::init()
+bool CSecurePassString::init()
 {
     void* mapped = mmap(nullptr, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
     if (mapped == (void*)-1)
     {
         printText(std::strerror(errno));
         printText("mmap fail.");
+
+        return false;
     }
 
     m_buffer = (uint8_t*)mapped;
@@ -55,6 +57,8 @@ void CSecurePassString::init()
     {
         printText(std::strerror(errno));
         printText("mmapB fail.");
+
+        return false;
     }
 
     m_undos = (uint8_t*)mappedB;
@@ -65,13 +69,15 @@ void CSecurePassString::init()
     guaranteed_memset(m_undos, 0, 256);
     mprotect(m_buffer, PAGE_SIZE, PROT_NONE);
     mprotect(m_undos, PAGE_SIZE, PROT_NONE);
+
+    return true;
 }
 
-void CSecurePassString::deInit()
+bool CSecurePassString::deInit()
 {
     if (m_buffer == nullptr)
     {
-        return;
+        return false;
     }
 
     mprotect(m_buffer, PAGE_SIZE, PROT_WRITE);
@@ -84,6 +90,7 @@ void CSecurePassString::deInit()
     m_undos = nullptr;
     Size = 0;
 
+    return true;
 }
 
 void CSecurePassString::putAtPosAndEncrypt(const uint8_t nVal, const uint32_t nIndex)

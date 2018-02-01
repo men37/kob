@@ -30,19 +30,25 @@
 
 #include "SecurePassString.hpp"
 
-const int32_t g_nMaxKeyFileSize = 4096;
-struct SKeyFile
+
+struct CKeyFile
 {
-    SKeyFile();
-    ~SKeyFile();
+    CKeyFile();
+    ~CKeyFile();
+
+    static const int32_t MaxKeyFileSize = 2048;
 
     uint8_t* Bytes;
     int32_t Size;
 
-    void clearBytes();
+    bool clearBytes();
 
     bool save(const std::string& strFilePath, CSecurePassString& pass);
     bool load(const std::string& strFilePath);
+
+private:
+    CKeyFile(const CKeyFile&);
+    CKeyFile operator=(const CKeyFile&);
 };
 
 

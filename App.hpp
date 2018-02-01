@@ -41,6 +41,7 @@ public:
     void setEnvironVars(const std::vector<std::string>& vars);
     std::string getEnvironVar(const std::string strText);
 private:
+
     bool getPassFromUser(CSecurePassString& pass);
     bool getConfirmation();
     void clearScreen();
@@ -49,7 +50,7 @@ private:
     void restoreEnvVars();
 
     std::string m_strInput;
-    SKeyFile m_key;
+    CKeyFile m_key;
     std::string m_strFileName;
     std::vector<std::string> m_envVars;
 };

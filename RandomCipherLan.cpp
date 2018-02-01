@@ -48,7 +48,7 @@ CRandomCipherLAN::~CRandomCipherLAN()
     deInit();
 }
 
-void CRandomCipherLAN::init()
+bool CRandomCipherLAN::init()
 {
     //deInit();
 
@@ -75,20 +75,25 @@ void CRandomCipherLAN::init()
     }
     mprotect(m_buffer, PAGE_SIZE, PROT_NONE);
 
+    return true;
+
 }
 
-void CRandomCipherLAN::deInit()
+bool CRandomCipherLAN::deInit()
 {
     if (m_buffer == nullptr)
     {
-        return;
+        return false;
     }
+
     const uint32_t nBuffSize = g_nSingleDigitNums + g_nLowercaseLetters + 1;
     mprotect(m_buffer, PAGE_SIZE, PROT_WRITE);
     guaranteed_memset(m_buffer, 0, nBuffSize);
     mprotect(m_buffer, PAGE_SIZE, PROT_NONE);
     munmap(m_buffer, PAGE_SIZE);
     m_buffer = nullptr;
+
+    return true;
 }
 
 uint8_t CRandomCipherLAN::valueForCharIndex(const uint8_t nIndex)

@@ -36,10 +36,11 @@ const uint32_t g_nLowercaseLetters = 26;
 class CRandomCipherLAN
 {
 public:
-	CRandomCipherLAN();
+    CRandomCipherLAN();
     ~CRandomCipherLAN();
-    void init();
-    void deInit();
+
+    bool init();
+    bool deInit();
 
     uint8_t valueForCharIndex(const uint8_t nIndex);
     uint8_t indexFor(const uint8_t nVal);
@@ -47,6 +48,8 @@ public:
     void getReAssignmentTable(std::string& strTable);
 
 private:
+    CRandomCipherLAN(const CRandomCipherLAN&);
+    CRandomCipherLAN operator=(const CRandomCipherLAN&);
     uint8_t* m_buffer;
 };
 
