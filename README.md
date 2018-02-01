@@ -19,6 +19,6 @@ It is of note each character of a password is encrypted after you provide it as 
 
 A file you selected (intended to be a key file you've already obfuscated) should load at the beginning and at the end have applied an XOR operation where your password gets cycled through repeatedly. Finally the file is saved over the one the original.
 
-At this time the options obfuscate and deobfuscate are really the same effect.
+At this time the options obfuscate and deobfuscate are really the same effect. But the program should be thought as an automated deobfuscater.
 
-note: do not load a sensitive file. instead of using the program to undo a change replace the sensitive key file with a backup of the protected one.
+note: do not load a sensitive file. instead of using the program to redo or make an obfuscation, replace the sensitive key file with a backup of the protected (already obfsucated) one.
