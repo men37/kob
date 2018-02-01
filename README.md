@@ -4,10 +4,11 @@ Alpha.
 
 For Gnu/Linux Only.
 
-The program does two things. 1) protect your input of your password string during opreation 2) apply your password to a file and overwrite the file.
+The program does two things. 1) protects your input of your password string during operation 2) applies your password to a file and overwrites the file.
 
-The idea is for each character you want the program to understand to be parsed as some decimal number you give to it.
-But the decimal numbers will be randomly reassigned for each character as you go on.
+The input process works as follows: for each character you want the program to understand it must be parsed as some decimal number you give to it.
+
+The decimal numbers will be randomly reassigned for each character as you go on.
 
 In total, the lowercase english alphabet, characters '0' through '9', and the space key get reassigned different numerical values after each time you pick a key.
 
