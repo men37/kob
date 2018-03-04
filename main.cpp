@@ -29,6 +29,8 @@ using namespace std;
 #include "Utility.hpp"
 #include "TheRandom.hpp"
 
+#include "StringOps.hpp"
+
 #include <random>
 
 void go();
@@ -60,6 +62,7 @@ void configure(CApp& app)
 
     app.setEnvironVars(toPreserve);
 
+
     // setting RLIMIT_CORE so core files don't get dumped.
     struct rlimit rl;
     getrlimit (RLIMIT_CORE, &rl);
@@ -68,22 +71,23 @@ void configure(CApp& app)
 
     // setting RLIMIT_AS limits memory
     getrlimit (RLIMIT_AS, &rl);
-    rl.rlim_cur = 35000000;
+    rl.rlim_cur = 1000000000;
     setrlimit (RLIMIT_AS, &rl);
 
     // setting RLIMIT_CPU limits cpu time
     getrlimit (RLIMIT_CPU, &rl);
-    rl.rlim_cur = 6;
+    rl.rlim_cur = 3;
     setrlimit (RLIMIT_CPU, &rl);
 
 
     // so our programs memory doesn't end up in swap area
-    mlockall(MCL_FUTURE);
+    // didn't play well with allegro. something about locking a bitmap not working.
+    //mlockall(MCL_FUTURE);
 }
 
 void deconfigure(CApp& app)
 {
-    munlockall();
+    //munlockall();
 }
 
 void go()
@@ -91,11 +95,30 @@ void go()
     pcg_extras::seed_seq_from<std::random_device> seed_source;
     g_rng = pcg32(seed_source);
 
+    if (!testRandom())
+    {
+      printText("the random was too predictable.");
+    }
+
     CApp app;
+
+    CEngine engine;
+    engine.setFPS(1.0);
+    engine.setDefaultFontSize(32);
+    engine.setDrawCode(drawCode);
+
+    const int32_t nInit = engine.init(1200, 1200, false);
+    if (nInit != eEngine_Ok)
+    {
+        printText(ts(nInit));
+        return;
+    }
 
     configure(app);
 
-    app.run();
+    app.run(&engine);
+
+    app.destroy();
 
     deconfigure(app);
 

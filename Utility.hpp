@@ -48,13 +48,11 @@
 
 void* guaranteed_memset(void* v, int c, size_t n);
 
-// Limit is 249 characters.
-bool getInputSafe(std::string& strInput);
-
 bool badInput(std::string& strInput);
 
 bool allNumeric(const std::string& strText);
 
+// make a version for CApp but use SDL not streams
 void printText(const std::string& strText, bool bEndLine=true);
 
 void overwriteStr(std::string& strText, const uint8_t nVal=1);

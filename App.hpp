@@ -30,30 +30,45 @@
 
 #include "Keyfile.hpp"
 #include "SecurePassString.hpp"
-
+#include "MyEngine.hpp"
 
 class CApp
 {
 public:
     CApp();
     ~CApp();
-    void run();
+    int32_t run(CEngine* pEngine);
     void setEnvironVars(const std::vector<std::string>& vars);
     std::string getEnvironVar(const std::string strText);
+    int32_t destroy();
+    std::string& getTextToDraw();
 private:
+    CApp(const CApp&);
+    CApp operator=(const CApp&);
 
+
+    bool getInputSafe(std::string& strInput);
+    void drawText(const std::string& strText);
     bool getPassFromUser(CSecurePassString& pass);
     bool getConfirmation();
     void clearScreen();
     void clearMembers();
-    void clearEnvVars();
+    void cleanEnvVars();
     void restoreEnvVars();
 
+    CEngine* m_pEngine;
+
+    bool m_bRestoredEnvVars;
+
+    std::string m_strTextToDraw;
     std::string m_strInput;
     CKeyFile m_key;
     std::string m_strFileName;
     std::vector<std::string> m_envVars;
+
 };
+
+void drawCode(CApp* pApp, CEngine* pEngine);
 
 
 #endif

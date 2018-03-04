@@ -41,33 +41,6 @@ void* guaranteed_memset(void* v, int c, size_t n)
     return v;
 }
 
-bool getInputSafe(std::string& strInput)
-{
-    std::getline(std::cin, strInput);
-
-    if (strInput.size() >= 250)
-    {
-        overwriteStr(strInput);
-
-        printText("Hazardous Input Text Detected.");
-        strInput.clear();
-
-        return false;
-    }
-
-    if (badInput(strInput))
-    {
-        overwriteStr(strInput);
-
-        printText("Hazardous Input Text Detected.");
-        strInput.clear();
-
-        return false;
-    }
-
-    return true;
-}
-
 bool badInput(std::string& strInput)
 {
     bool bVal = false;

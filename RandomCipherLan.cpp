@@ -152,8 +152,8 @@ void CRandomCipherLAN::getReAssignmentTable(std::string& strTable)
 
         if (iii > nHalfTableSize)
         {
-            table[iii - nHalfTableSize].push_back('\t');
-            table[iii - nHalfTableSize].push_back('\t');
+            table[iii - nHalfTableSize].push_back(' ');
+            table[iii - nHalfTableSize].push_back(' ');
             table[iii - nHalfTableSize].append(strItem);
             overwriteStr(strItem);
             continue;

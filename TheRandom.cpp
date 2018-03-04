@@ -44,3 +44,46 @@ uint32_t randomUInt32InRange(const uint32_t nMin, const uint32_t nMax)
 
     return index_dist(g_rng);
 }
+
+bool randomBool()
+{
+    std::uniform_int_distribution<uint8_t> index_dist(0, 1);
+    return index_dist(g_rng);
+}
+
+bool testRandom(const uint32_t nIters)
+{
+
+  bool bLastVal = false;
+  uint32_t nLastWasOpposite = 0;
+  uint32_t nLastNotOpposite = 0;
+  for (uint32_t iii = 0; iii < nIters; ++iii)
+  {
+    if (iii == 0)
+    {
+      bLastVal = randomBool();
+      continue;
+    }
+
+    const bool bGot = randomBool();
+    if (bGot == bLastVal)
+    {
+      ++nLastNotOpposite;
+    }
+    else
+    {
+      ++nLastWasOpposite;
+    }
+
+    bLastVal = bGot;
+  }
+
+  const uint32_t nUnacceptable = nIters - 3;
+  if (nLastWasOpposite >= nUnacceptable)
+  {
+    // outputting a predictable pattern. probably no true support for random_device?
+    return false;
+  }
+
+  return true;
+}

@@ -30,12 +30,15 @@
 
 #include "TheRandom.hpp"
 
+#include "StringOps.hpp"
+
 #include <unistd.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
-CApp::CApp()
+
+CApp::CApp() : m_pEngine(nullptr), m_bRestoredEnvVars(true)
 {
 
 }
@@ -43,14 +46,19 @@ CApp::CApp()
 CApp::~CApp()
 {
     clearMembers();
-    clearScreen();
     restoreEnvVars();
-
 }
 
 
-void CApp::run()
+int32_t CApp::run(CEngine* pEngine)
 {
+
+    m_pEngine = pEngine;
+
+    cleanEnvVars();
+
+    clearScreen();
+
     printText("Be advised the file size limit is 2048 bytes.");
 
     printText("pick an option by letter: ");
@@ -59,19 +67,20 @@ void CApp::run()
     {
         clearMembers();
         clearScreen();
-        return;
+        return 0;
     }
 
 
     if (m_strInput[0] == 's')
     {
+
         printText("set file name now: ");
 
         if (!getInputSafe(m_strInput))
         {
             clearMembers();
             clearScreen();
-            return;
+            return 0;
         }
 
         m_strFileName = m_strInput;
@@ -81,7 +90,7 @@ void CApp::run()
             clearMembers();
             clearScreen();
             printText("error loading file.");
-            return;
+            return 0;
         }
     }
     else if (m_strInput[0] == 'c')
@@ -89,14 +98,14 @@ void CApp::run()
         clearMembers();
         clearScreen();
         printText("user abort.");
-        return;
+        return 0;
     }
     else
     {
         clearMembers();
         clearScreen();
         printText("unrecognized option.. aborting.");
-        return;
+        return 0;
     }
 
     printText("pick an option by letter: ");
@@ -105,7 +114,7 @@ void CApp::run()
     {
         clearMembers();
         clearScreen();
-        return;
+        return 0;
     }
 
     if (m_strInput[0] == 'o')
@@ -117,7 +126,7 @@ void CApp::run()
             clearMembers();
             clearScreen();
             printText("user did input incorrectly.");
-            return;
+            return 0;
         }
 
         const bool bConfirmed = getConfirmation();
@@ -126,7 +135,7 @@ void CApp::run()
             clearMembers();
             clearScreen();
             printText("user did not confirm obfuscation.");
-            return;
+            return 0;
         }
 
         const bool bResult = obfuscateAndSaveKF(m_key, pass, m_strFileName);
@@ -137,7 +146,7 @@ void CApp::run()
             clearMembers();
             clearScreen();
             printText("error occurred in opening file to save.");
-            return;
+            return 0;
         }
     }
     else if (m_strInput[0] == 'd')
@@ -149,7 +158,7 @@ void CApp::run()
             clearMembers();
             clearScreen();
             printText("user did input incorrectly.");
-            return;
+            return 0;
         }
 
         const bool bConfirmed = getConfirmation();
@@ -158,7 +167,7 @@ void CApp::run()
             clearMembers();
             clearScreen();
             printText("user did not confirm deobfuscation.");
-            return;
+            return 0;
         }
         const bool bResult = deobfuscateAndSaveKF(m_key, pass, m_strFileName);
         pass.deInit();
@@ -167,7 +176,7 @@ void CApp::run()
             clearMembers();
             clearScreen();
             printText("error occurred in opening file to save.");
-            return;
+            return 0;
         }
     }
     else if (m_strInput[0] == 'c')
@@ -175,15 +184,17 @@ void CApp::run()
         clearMembers();
         clearScreen();
         printText("user abort.");
-        return;
+        return 0;
     }
     else
     {
         clearMembers();
         clearScreen();
         printText("unrecognized option.. aborting.");
-        return;
+        return 0;
     }
+
+    return 0;
 }
 
 
@@ -210,6 +221,77 @@ std::string CApp::getEnvironVar(const std::string strText)
     return std::string("");
 }
 
+bool CApp::getInputSafe(std::string& strInput)
+{
+    strInput.clear();
+
+    bool bDone = false;
+
+    while (!bDone)
+    {
+        ALLEGRO_EVENT ev;
+
+        al_wait_for_event(m_pEngine->getEventQueue(), &ev);
+
+
+        if (ev.type == ALLEGRO_EVENT_KEY_UP)
+        {
+            if (ev.keyboard.keycode >= ALLEGRO_KEY_A && ev.keyboard.keycode <= ALLEGRO_KEY_Z)
+            {
+                strInput.push_back('a'+(ev.keyboard.keycode  - ALLEGRO_KEY_A));
+            }
+            else if (ev.keyboard.keycode >= ALLEGRO_KEY_0 && ev.keyboard.keycode <= ALLEGRO_KEY_9)
+            {
+                strInput.push_back('0'+(ev.keyboard.keycode - ALLEGRO_KEY_0));
+            }
+            else if (ev.keyboard.keycode == ALLEGRO_KEY_BACKSPACE)
+            {
+                if (strInput.size() > 0)
+                {
+                    strInput.erase(strInput.begin() + (strInput.size() - 1));
+                }
+            }
+            else if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER)
+            {
+                bDone = true;
+                break;
+            }
+            else if (ev.keyboard.keycode == ALLEGRO_KEY_FULLSTOP)
+            {
+                strInput.push_back('.');
+            }
+        }
+    }
+
+    if (strInput.size() >= 250)
+    {
+        overwriteStr(strInput);
+
+        printText("Hazardous Input Text Detected.");
+        strInput.clear();
+
+        return false;
+    }
+
+    if (badInput(strInput))
+    {
+        overwriteStr(strInput);
+
+        printText("Hazardous Input Text Detected.");
+        strInput.clear();
+
+        return false;
+    }
+
+    return true;
+}
+
+void CApp::drawText(const std::string& strText)
+{
+    m_strTextToDraw = strText;
+    m_pEngine->draw(this);
+    overwriteStr(m_strTextToDraw);
+}
 
 bool CApp::getPassFromUser(CSecurePassString& pass)
 {
@@ -234,7 +316,8 @@ bool CApp::getPassFromUser(CSecurePassString& pass)
         std::string strTable;
 
         lan.getReAssignmentTable(strTable);
-        printText(strTable);
+        drawText(strTable);
+
         overwriteStr(strTable);
         strTable.clear();
 
@@ -319,7 +402,10 @@ bool CApp::getConfirmation()
         strConfirmText.push_back('0'+randomUInt32InRange(0,9));
     }
 
-    printText("To confirm operation please enter the numbers: " + strConfirmText);
+    std::string strShow;
+    strShow.append("To confirm operation please enter the numbers: ");
+    strShow.append(strConfirmText);
+    drawText(strShow);
     std::string strInput;
     getInputSafe(strInput);
 
@@ -332,10 +418,13 @@ bool CApp::getConfirmation()
         return false;
     }
 
+    overwriteStr(strShow);
+    strShow.clear();
     overwriteStr(strConfirmText, 1);
     strConfirmText.clear();
     overwriteStr(strInput, 1);
     strInput.clear();
+
 
     clearScreen();
 
@@ -344,25 +433,7 @@ bool CApp::getConfirmation()
 
 void CApp::clearScreen()
 {
-    clearEnvVars();
-
-    printf("\033[2J");
-
-    std::string strExtras;
-    uint32_t nTableSize = g_nLowercaseLetters+g_nSingleDigitNums+1;
-    nTableSize = nTableSize * (3+2);
-    for (uint32_t iii = 0; iii < nTableSize; ++iii)
-    {
-        strExtras.push_back('1');
-    }
-
-    printText(strExtras);
-
-    strExtras.clear();
-
-    printf("\033[2J");
-
-    std::system("clear");
+    al_clear_to_color(al_map_rgb(0, 0, 0));
 }
 
 void CApp::clearMembers()
@@ -372,14 +443,16 @@ void CApp::clearMembers()
     overwriteStr(m_strFileName, 1);
     m_strFileName.clear();
     m_key.clearBytes();
+    overwriteStr(m_strTextToDraw);
 }
 
-void CApp::clearEnvVars()
+void CApp::cleanEnvVars()
 {
     std::vector<std::string> toKeep ;
     toKeep.push_back(std::string("SHELL"));
     toKeep.push_back(std::string("TERM"));
     toKeep.push_back(std::string("PATH"));
+    toKeep.push_back(std::string("DISPLAY"));
     toKeep.push_back(std::string("LD_LIBRARY_PATH"));
 
     for (uint32_t iii = 0; iii < m_envVars.size(); ++iii)
@@ -409,10 +482,17 @@ void CApp::clearEnvVars()
     {
         setenv("TERM", "xterm", 1);
     }
+
+    m_bRestoredEnvVars = false;
 }
 
 void CApp::restoreEnvVars()
 {
+    if (m_bRestoredEnvVars)
+    {
+        return;
+    }
+
     for (uint32_t iii = 0; iii < m_envVars.size(); ++iii)
     {
         std::vector<std::string> strs;
@@ -427,4 +507,38 @@ void CApp::restoreEnvVars()
         setenv(str.c_str(), strs[1].c_str(), 1);
 
     }
+
+    m_bRestoredEnvVars = true;
+}
+
+int32_t CApp::destroy()
+{
+
+    clearMembers();
+    clearScreen();
+    restoreEnvVars();
+
+    overwriteStr(m_strTextToDraw);
+
+    return 0;
+}
+
+std::string& CApp::getTextToDraw()
+{
+    return m_strTextToDraw;
+}
+
+
+void drawCode(CApp* pApp, CEngine* pEngine)
+{
+    std::string strText;
+    strText.append(pApp->getTextToDraw());
+
+    std::vector<std::string> texts = split(strText, '\n');
+    for (uint32_t iii = 0; iii < texts.size(); ++iii)
+    {
+        al_draw_text(pEngine->getDefaultFont(), al_map_rgb(255, 0, 0), 0, 32 * iii, 0, texts[iii].c_str());
+    }
+
+
 }

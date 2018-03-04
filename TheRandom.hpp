@@ -35,6 +35,8 @@ extern pcg32 g_rng;
 uint8_t randomUInt8InRange(const uint8_t nMin, const uint8_t nMax);
 uint32_t randomUInt32InRange(const uint32_t nMin, const uint32_t nMax);
 
+bool randomBool();
 
+bool testRandom(const uint32_t nIters = 500);
 
 #endif
