@@ -2,7 +2,7 @@
 
 Alpha.
 
-For Gnu/Linux Only.
+For Gnu/Linux Only. Not a system wide enhancement. Please interact with kob directly.
 
 The program does two things. 1) protects your input of your password string during operation 2) applies your password to a file and overwrites the file.
 
